@@ -1,0 +1,52 @@
+{
+    "first_names": [
+        "Emma", "Liam", "Olivia", "Noah", "Ava", "William", "Sophia", "James",
+        "Isabella", "Benjamin", "Mia", "Elijah", "Charlotte", "Lucas", "Amelia",
+        "Mason", "Harper", "Ethan", "Evelyn", "Alexander", "Abigail", "Henry",
+        "Emily", "Jacob", "Elizabeth", "Michael", "Sofia", "Daniel", "Madison",
+        "Logan", "Avery", "Jackson", "Ella", "Sebastian", "Scarlett", "Jack",
+        "Grace", "Aiden", "Chloe", "Owen", "Victoria", "Samuel", "Riley", "Matthew",
+        "Aria", "Joseph", "Lily", "Leo", "Aubrey", "Gabriel"
+    ],
+    "last_names": [
+        "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
+        "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin",
+        "Thompson", "Garcia", "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee",
+        "Walker", "Hall", "Allen", "Young", "Hernandez", "King", "Wright", "Lopez",
+        "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez", "Nelson", "Carter",
+        "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans",
+        "Edwards", "Collins"
+    ],
+    "email_domains": [
+        "gmail.com",
+        "yahoo.com",
+        "outlook.com",
+        "hotmail.com",
+        "aol.com",
+        "icloud.com",
+        "protonmail.com",
+        "mail.com"
+    ],
+    "interests": [
+        "travel",
+        "food",
+        "fashion",
+        "home decor",
+        "fitness",
+        "technology",
+        "art",
+        "photography",
+        "diy",
+        "gardening",
+        "beauty",
+        "books",
+        "movies",
+        "music",
+        "sports",
+        "pets",
+        "cars",
+        "education",
+        "business",
+        "finance"
+    ]
+}

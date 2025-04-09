@@ -1,0 +1,28 @@
+{
+    "account_creation": {
+        "num_accounts": 5,
+        "headless": false,
+        "verify_success": true,
+        "max_retries": 3,
+        "min_delay": 30,
+        "max_delay": 120
+    },
+    "proxy": {
+        "use_proxy": false,
+        "proxy_file": "proxies.txt",
+        "proxy_list": [
+            "http://proxy1.example.com:8080",
+            "http://proxy2.example.com:8080"
+        ],
+        "proxy_api_url": null,
+        "proxy_api_key": null
+    },
+    "user_data": {
+        "use_custom_data": false,
+        "data_file": "user_data.json"
+    },
+    "output": {
+        "output_file": "pinterest_accounts.json",
+        "log_level": "INFO"
+    }
+}
