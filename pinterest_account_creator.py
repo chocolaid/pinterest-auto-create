@@ -112,8 +112,10 @@ class PinterestAccountCreator:
         password_chars = string.ascii_letters + string.digits + "!@#$%^&*"
         password = ''.join(random.choice(password_chars) for _ in range(password_length))
         
-        # Generate random age between 18 and 65
-        age = random.randint(18, 65)
+        # Generate random (not so random lol), but this is what works perfectly :)
+        day = random.randint(1, 9)
+        month = random.randint(1, 9)
+        age = int(f"{month}{day}2004")
         
         # Generate random gender
         gender = random.choice(["male", "female"])
@@ -224,6 +226,12 @@ class PinterestAccountCreator:
             # Go to Pinterest signup page
             self.driver.get("https://www.pinterest.com/signup/")
             time.sleep(3)  # Allow page to load
+
+            # Pinterest sometimes redirects to the homepage without displaying the signup form,
+            # so this manually clicks the signup button to ensure the form appears.
+            signup_button = self.wait_for_element(By.CSS_SELECTOR, "div.RCK.Hsu.USg.adn.NTm.KhY.iyn.S9z.F10.xD4.i1W.V92.a_A.hNT.BG7.hDj._O1.KS5.mQ8.Tbt.L4E div.X8m.tg7.tBJ.dyH.iFc.sAJ.H2s")
+            if not signup_button or not self.click_element(signup_button):
+                return False
             
             # Fill email field
             email_field = self.wait_for_element(By.ID, "email")
@@ -237,13 +245,15 @@ class PinterestAccountCreator:
                 return False
             password_field.send_keys(user_info["password"])
             
-            # Fill age field
+            # Fill the age field. Sometimes it changes. :)
             age_field = self.wait_for_element(By.ID, "age")
+            if not age_field:
+            age_field = self.wait_for_element(By.ID, "birthdate")
             if not age_field:
                 return False
             age_field.send_keys(str(user_info["age"]))
             
-            # Click continue button
+            # Click Continue button
             continue_button = self.wait_for_element(By.CSS_SELECTOR, "button[type='submit']")
             if not continue_button or not self.click_element(continue_button):
                 return False
