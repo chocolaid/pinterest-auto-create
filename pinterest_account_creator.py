@@ -160,6 +160,9 @@ class PinterestAccountCreator:
         password_chars = string.ascii_letters + string.digits + "!@#$%^&*"
         password = ''.join(random.choice(password_chars) for _ in range(password_length))
         
+        # Generate random age between 18 and 65
+        age = random.randint(18, 65)
+        
         # Generate random gender
         gender = random.choice(["male", "female"])
         
@@ -270,32 +273,9 @@ class PinterestAccountCreator:
             bool: True if form was filled successfully, False otherwise
         """
         try:
-            # Go to Pinterest signup page with retry logic
-            max_retries = 3
-            for attempt in range(max_retries):
-                try:
-                    self.driver.get("https://www.pinterest.com/signup/")
-                    # Wait for page to load
-                    WebDriverWait(self.driver, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-test-id='signup-form']"))
-                    )
-                    break
-                except TimeoutException:
-                    if attempt == max_retries - 1:
-                        logging.error("Failed to load signup page after multiple attempts")
-                        return False
-                    logging.warning(f"Retrying to load signup page (attempt {attempt + 1}/{max_retries})")
-                    time.sleep(5)
-            
-            # Wait for signup button and click it
-            try:
-                signup_button = WebDriverWait(self.driver, 10).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "div.RCK.Hsu.USg.adn.NTm.KhY.iyn.S9z.F10.xD4.i1W.V92.a_A.hNT.BG7.hDj._O1.KS5.mQ8.Tbt.L4E div.X8m.tg7.tBJ.dyH.iFc.sAJ.H2s"))
-                )
-                self.click_element(signup_button)
-            except TimeoutException:
-                logging.error("Signup button not found or not clickable")
-                return False
+            # Go to Pinterest signup page
+            self.driver.get("https://www.pinterest.com/signup/")
+            time.sleep(3)  # Allow page to load
             
             # Fill email field
             try:
@@ -318,14 +298,11 @@ class PinterestAccountCreator:
             except TimeoutException:
                 logging.error("Password field not found")
                 return False
+            password_field.send_keys(user_info["password"])
             
-            # Wait for birthdate field to be present
-            try:
-                birthdate_field = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.ID, "birthdate"))
-                )
-            except TimeoutException:
-                logging.error("Birthdate field not found")
+            # Fill age field
+            age_field = self.wait_for_element(By.ID, "age")
+            if not age_field:
                 return False
             
             # Set birthdate using JavaScript that simulates real user input
@@ -382,13 +359,8 @@ class PinterestAccountCreator:
             time.sleep(0.5)
             
             # Click continue button
-            try:
-                continue_button = WebDriverWait(self.driver, 10).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
-                )
-                self.click_element(continue_button)
-            except TimeoutException:
-                logging.error("Continue button not found or not clickable")
+            continue_button = self.wait_for_element(By.CSS_SELECTOR, "button[type='submit']")
+            if not continue_button or not self.click_element(continue_button):
                 return False
             
             time.sleep(2)  # Wait for next page
