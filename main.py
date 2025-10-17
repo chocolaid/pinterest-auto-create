@@ -6,6 +6,7 @@ import argparse
 import logging
 from batch_account_creator import BatchAccountCreator, UserGenerator, ProxyHandler
 from pinterest_account_creator import PinterestAccountCreator
+from account_manager import AccountManager
 
 # Configure logging
 logging.basicConfig(
@@ -52,7 +53,8 @@ def create_default_config():
             "verify_success": True,
             "max_retries": 3,
             "min_delay": 30,
-            "max_delay": 120
+            "max_delay": 120,
+            "use_temp_mail": True  # Default to using temp mail
         },
         "proxy": {
             "use_proxy": False,
@@ -86,41 +88,31 @@ def save_config(config, config_file="config.json"):
         logging.error(f"Error saving config: {str(e)}")
 
 def setup_argument_parser():
-    """Set up command line argument parser
-    
-    Returns:
-        argparse.ArgumentParser: Configured argument parser
-    """
-    parser = argparse.ArgumentParser(description="Pinterest Account Creator Automation")
+    """Set up command line argument parser"""
+    parser = argparse.ArgumentParser(description="Pinterest Account Creator")
     
     # General options
-    parser.add_argument("-c", "--config", type=str, default="config.json",
-                        help="Path to configuration file")
-    parser.add_argument("-n", "--num-accounts", type=int,
-                        help="Number of accounts to create")
-    parser.add_argument("--headless", action="store_true",
-                        help="Run in headless mode (no browser UI)")
+    parser.add_argument("--config", type=str, default="config.json", help="Path to configuration file")
+    parser.add_argument("--num-accounts", type=int, help="Number of accounts to create")
+    parser.add_argument("--headless", action="store_true", help="Run in headless mode")
     
     # Proxy options
-    proxy_group = parser.add_argument_group("Proxy Options")
-    proxy_group.add_argument("--use-proxy", action="store_true",
-                            help="Use proxies for account creation")
-    proxy_group.add_argument("--proxy-file", type=str,
-                            help="Path to file containing proxies")
+    parser.add_argument("--use-proxy", action="store_true", help="Use proxies")
+    parser.add_argument("--proxy-file", type=str, help="Path to proxy file")
+    parser.add_argument("--proxy-api-url", type=str, help="URL for proxy API")
+    parser.add_argument("--proxy-api-key", type=str, help="API key for proxy API")
     
-    # User data options
-    user_group = parser.add_argument_group("User Data Options")
-    user_group.add_argument("--use-custom-data", action="store_true",
-                           help="Use custom user data for account creation")
-    user_group.add_argument("--data-file", type=str,
-                           help="Path to file containing custom user data")
+    # Email verification options
+    parser.add_argument("--use-temp-mail", action="store_true", help="Use temporary email for verification")
+    parser.add_argument("--verify-timeout", type=int, help="Timeout for email verification in seconds")
     
     # Output options
-    output_group = parser.add_argument_group("Output Options")
-    output_group.add_argument("--output-file", type=str,
-                             help="Path to output file for created accounts")
-    output_group.add_argument("--log-level", type=str, choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-                             help="Logging level")
+    parser.add_argument("--output-file", type=str, help="Path to output file")
+    
+    # Other options
+    parser.add_argument("--min-delay", type=int, help="Minimum delay between account creations in seconds")
+    parser.add_argument("--max-delay", type=int, help="Maximum delay between account creations in seconds")
+    parser.add_argument("--max-retries", type=int, help="Maximum number of retries per account")
     
     return parser
 
@@ -134,32 +126,39 @@ def update_config_from_args(config, args):
     Returns:
         dict: Updated configuration dictionary
     """
-    # Update account creation settings
-    if args.num_accounts is not None:
-        config["account_creation"]["num_accounts"] = args.num_accounts
+    # Update general settings
+    if args.num_accounts:
+        config["batch"]["num_accounts"] = args.num_accounts
     if args.headless:
         config["account_creation"]["headless"] = True
+    if args.use_temp_mail:
+        config["account_creation"]["use_temp_mail"] = True
     
     # Update proxy settings
     if args.use_proxy:
-        config["proxy"]["use_proxy"] = True
+        config["proxy"]["enabled"] = True
     if args.proxy_file:
         config["proxy"]["proxy_file"] = args.proxy_file
+    if args.proxy_api_url:
+        config["proxy"]["proxy_api_url"] = args.proxy_api_url
+    if args.proxy_api_key:
+        config["proxy"]["proxy_api_key"] = args.proxy_api_key
     
-    # Update user data settings
-    if args.use_custom_data:
-        config["user_data"]["use_custom_data"] = True
-    if args.data_file:
-        config["user_data"]["data_file"] = args.data_file
+    # Update verification settings
+    if args.verify_timeout:
+        config["verification"]["timeout"] = args.verify_timeout
     
     # Update output settings
     if args.output_file:
-        config["output"]["output_file"] = args.output_file
-    if args.log_level:
-        config["output"]["log_level"] = args.log_level
-        # Update logging level
-        numeric_level = getattr(logging, args.log_level)
-        logging.getLogger().setLevel(numeric_level)
+        config["output"]["accounts_file"] = args.output_file
+    
+    # Update timing settings
+    if args.min_delay:
+        config["batch"]["min_delay"] = args.min_delay
+    if args.max_delay:
+        config["batch"]["max_delay"] = args.max_delay
+    if args.max_retries:
+        config["batch"]["max_retries"] = args.max_retries
     
     return config
 
@@ -180,6 +179,7 @@ def setup_batch_creator(config):
         "min_delay": config["account_creation"]["min_delay"],
         "max_delay": config["account_creation"]["max_delay"],
         "use_proxy": config["proxy"]["use_proxy"],
+        "use_temp_mail": config["account_creation"]["use_temp_mail"],  # Add temp mail setting
         "proxy_file": config["proxy"]["proxy_file"],
         "proxy_list": config["proxy"]["proxy_list"],
         "proxy_api_url": config["proxy"]["proxy_api_url"],
@@ -232,48 +232,43 @@ def display_summary(stats):
     print("=" * 50)
 
 def main():
-    """Main function to run the Pinterest account creator"""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Pinterest Account Creator')
+    parser.add_argument('--creation-threads', type=int, default=2,
+                      help='Number of account creation threads')
+    parser.add_argument('--verification-threads', type=int, default=3,
+                      help='Number of verification threads')
+    parser.add_argument('--headless', action='store_true',
+                      help='Run browsers in headless mode')
+    parser.add_argument('--use-proxy', action='store_true',
+                      help='Use proxy for account creation')
+    parser.add_argument('--proxy', type=str,
+                      help='Proxy address in format http://ip:port')
+    parser.add_argument('--use-temp-mail', action='store_true', default=True,
+                      help='Use temp mail for verification')
+    
+    args = parser.parse_args()
+    
     try:
-        # Parse command line arguments
-        parser = setup_argument_parser()
-        args = parser.parse_args()
+        # Create account manager
+        manager = AccountManager(
+            num_creation_threads=args.creation_threads,
+            num_verification_threads=args.verification_threads,
+            headless=args.headless,
+            use_proxy=args.use_proxy,
+            proxy=args.proxy,
+            use_temp_mail=args.use_temp_mail
+        )
         
-        # Load configuration
-        config = load_config(args.config)
-        
-        # Update configuration with command line arguments
-        config = update_config_from_args(config, args)
-        
-        # Save updated configuration
-        save_config(config, args.config)
-        
-        # Set up batch account creator
-        batch_creator = setup_batch_creator(config)
-        
-        # Display configuration
-        print("\n" + "=" * 50)
-        print("PINTEREST ACCOUNT CREATOR")
-        print("=" * 50)
-        print(f"Number of accounts to create: {config['account_creation']['num_accounts']}")
-        print(f"Headless mode: {config['account_creation']['headless']}")
-        print(f"Using proxies: {config['proxy']['use_proxy']}")
-        print(f"Using custom user data: {config['user_data']['use_custom_data']}")
-        print("=" * 50)
-        print("Starting account creation...\n")
-        
-        # Create accounts
-        stats = batch_creator.create_accounts()
-        
-        # Display summary
-        display_summary(stats)
+        # Start the process
+        manager.start()
         
     except KeyboardInterrupt:
-        print("\nOperation cancelled by user")
-        sys.exit(1)
+        print("\nShutting down gracefully...")
+        manager.stop()
     except Exception as e:
-        logging.error(f"Error in main function: {str(e)}")
-        print(f"\nError: {str(e)}")
-        sys.exit(1)
+        print(f"Error: {str(e)}")
+        manager.stop()
 
 if __name__ == "__main__":
     main()

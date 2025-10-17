@@ -1,0 +1,144 @@
+2025-04-14 03:07:48,487 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:07:52,787 - test_account_creation - ERROR - Error creating account: PinterestAccountCreator.create_account() got an unexpected keyword argument 'use_temp_mail'
+2025-04-14 03:07:53,028 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:07:53,028 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:07:56,537 - test_account_creation - ERROR - Error creating account: PinterestAccountCreator.create_account() got an unexpected keyword argument 'use_temp_mail'
+2025-04-14 03:07:56,670 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:07:56,671 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:09:01,159 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:09:43,311 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:10:13,986 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:10:14,802 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:10:14,805 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:10:41,847 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:10:42,639 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:10:42,642 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:11:12,596 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:11:13,419 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 03:11:13,421 - test_account_creation - INFO - Account creation completed.
+2025-04-14 03:11:13,422 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 03:11:13,426 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 03:11:13,427 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 03:14:01,147 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:14:31,635 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:14:32,418 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:14:32,421 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:15:00,803 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:15:01,598 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:15:01,601 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:15:08,118 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:15:08,658 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 03:15:08,662 - test_account_creation - INFO - Account creation completed.
+2025-04-14 03:15:08,663 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 03:15:08,665 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 03:15:08,666 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 03:20:09,632 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:20:34,148 - test_account_creation - ERROR - Failed to create account 1: Failed to select interests
+2025-04-14 03:20:34,814 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:20:34,817 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:24:03,070 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:24:09,639 - test_account_creation - ERROR - Error creating account: name 'timedelta' is not defined
+2025-04-14 03:24:09,778 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:24:09,780 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:24:14,412 - test_account_creation - ERROR - Error creating account: name 'timedelta' is not defined
+2025-04-14 03:24:14,551 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:24:14,556 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:24:19,278 - test_account_creation - ERROR - Error creating account: name 'timedelta' is not defined
+2025-04-14 03:24:19,427 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 03:24:19,429 - test_account_creation - INFO - Account creation completed.
+2025-04-14 03:24:19,433 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 03:24:19,433 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 03:24:19,436 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 03:24:38,345 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:25:47,888 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:25:52,758 - test_account_creation - ERROR - Error creating account: Random.randint() takes 3 positional arguments but 4 were given
+2025-04-14 03:25:52,889 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:25:52,891 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:25:57,658 - test_account_creation - ERROR - Error creating account: Random.randint() takes 3 positional arguments but 4 were given
+2025-04-14 03:25:57,798 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:25:57,800 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:26:21,358 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:30:04,784 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 03:30:05,565 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:30:05,567 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:31:06,556 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:33:44,998 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:34:12,907 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:34:51,515 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:37:57,705 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:38:39,068 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:39:07,009 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:39:07,698 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:39:07,702 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:40:29,203 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:41:20,342 - test_account_creation - ERROR - Error creating account: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>
+2025-04-14 03:41:20,343 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:41:20,343 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:42:09,022 - test_account_creation - ERROR - Error creating account: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>
+2025-04-14 03:42:09,023 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:42:09,024 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:42:54,991 - test_account_creation - ERROR - Error creating account: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>
+2025-04-14 03:42:54,993 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 03:42:54,994 - test_account_creation - INFO - Account creation completed.
+2025-04-14 03:42:54,995 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 03:42:54,996 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 03:42:54,997 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 03:49:02,250 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:50:15,316 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:51:00,317 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:54:49,690 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 03:54:50,641 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 03:54:50,643 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:55:20,650 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 03:55:21,370 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 03:55:21,371 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 03:59:16,079 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 03:59:16,904 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 03:59:16,906 - test_account_creation - INFO - Account creation completed.
+2025-04-14 03:59:16,907 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 03:59:16,908 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 03:59:16,909 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 04:24:09,557 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:28:24,644 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:29:22,080 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:30:11,384 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:35:36,620 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 04:35:37,031 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 04:35:37,031 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:36:17,255 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 04:36:17,472 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 04:36:17,473 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:41:00,863 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:46:46,120 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 04:46:46,458 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 04:46:46,460 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:52:28,570 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 04:52:29,036 - test_account_creation - WARNING - Retrying account creation (2/3)
+2025-04-14 04:52:29,039 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 04:53:11,767 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 04:53:11,979 - test_account_creation - WARNING - Retrying account creation (3/3)
+2025-04-14 04:53:11,980 - test_account_creation - INFO - Account creation completed.
+2025-04-14 04:53:11,981 - test_account_creation - INFO - Created 0 new accounts out of 1 attempts
+2025-04-14 04:53:11,981 - test_account_creation - INFO - Total accounts: 0 (including 0 existing accounts)
+2025-04-14 04:53:11,982 - test_account_creation - INFO - Accounts saved to accounts.json
+2025-04-14 04:58:47,592 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 05:04:31,948 - test_account_creation - ERROR - Failed to create account 1: Failed to complete verification
+2025-04-14 05:04:32,275 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 05:04:32,276 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 05:09:55,210 - test_account_creation - INFO - Creating account 1/200
+2025-04-14 05:10:21,149 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 05:10:21,409 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 05:10:21,409 - test_account_creation - INFO - Creating account 1/200
+2025-04-14 05:20:05,676 - test_account_creation - INFO - Creating account 1/3
+2025-04-14 05:20:32,333 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 05:20:32,635 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 05:20:32,638 - test_account_creation - INFO - Creating account 1/3
+2025-04-14 05:21:31,190 - test_account_creation - INFO - Creating account 1/5
+2025-04-14 05:21:56,674 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 05:21:57,091 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 05:21:57,091 - test_account_creation - INFO - Creating account 1/5
+2025-04-14 05:23:07,356 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 05:23:21,030 - test_account_creation - ERROR - Failed to create account 1: Failed to fill signup form
+2025-04-14 05:23:21,252 - test_account_creation - WARNING - Retrying account creation (1/3)
+2025-04-14 05:23:21,253 - test_account_creation - INFO - Creating account 1/1
+2025-04-14 05:24:21,223 - test_account_creation - INFO - Creating account 1/1

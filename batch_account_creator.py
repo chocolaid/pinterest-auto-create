@@ -181,7 +181,7 @@ class ProxyHandler:
         return proxy
 
 class BatchAccountCreator:
-    """A class to create multiple Pinterest accounts in batch mode"""
+    """A class to handle batch creation of Pinterest accounts"""
     
     def __init__(self, config=None):
         """Initialize the batch account creator
@@ -194,8 +194,9 @@ class BatchAccountCreator:
             "num_accounts": 1,
             "headless": False,
             "use_proxy": False,
-            "proxy_file": None,
-            "proxy_list": None,
+            "use_temp_mail": True,  # Default to using temp mail
+            "proxy_file": "proxies.txt",
+            "proxy_list": [],
             "proxy_api_url": None,
             "proxy_api_key": None,
             "user_data_file": None,
@@ -273,7 +274,8 @@ class BatchAccountCreator:
                 creator = PinterestAccountCreator(
                     headless=self.config["headless"],
                     use_proxy=self.config["use_proxy"],
-                    proxy=proxy
+                    proxy=proxy,
+                    use_temp_mail=self.config["use_temp_mail"]  # Pass temp mail setting
                 )
                 
                 try:
@@ -361,6 +363,8 @@ def parse_arguments():
                         help="Run in headless mode (no visible browser)")
     parser.add_argument("--use-proxy", action="store_true",
                         help="Use proxies for account creation")
+    parser.add_argument("--no-temp-mail", action="store_true",
+                        help="Disable temp mail and use random emails instead")
     parser.add_argument("--proxy-file", type=str,
                         help="Path to file containing proxies (one per line)")
     parser.add_argument("--user-data-file", type=str,
@@ -385,6 +389,7 @@ def main():
         "num_accounts": args.num_accounts,
         "headless": args.headless,
         "use_proxy": args.use_proxy,
+        "use_temp_mail": not args.no_temp_mail,  # Use temp mail unless --no-temp-mail is specified
         "proxy_file": args.proxy_file,
         "user_data_file": args.user_data_file,
         "output_file": args.output_file,
@@ -399,13 +404,15 @@ def main():
     # Create accounts
     stats = creator.create_accounts()
     
-    # Print summary
-    print("\nBatch Account Creation Summary:")
+    # Display summary
+    print("\n--- Account Creation Summary ---")
     print(f"Total accounts: {stats['total']}")
-    print(f"Successful: {stats['success']}")
+    print(f"Successfully created: {stats['success']}")
     print(f"Failed: {stats['failed']}")
-    print(f"Duration: {stats['duration']:.2f} minutes")
+    print(f"Success rate: {stats['success'] / stats['total'] * 100:.2f}%")
+    print(f"Total time: {stats['duration']:.2f} minutes")
     print(f"Results saved to: {config['output_file']}")
+    print("-------------------------------\n")
 
 if __name__ == "__main__":
     main()

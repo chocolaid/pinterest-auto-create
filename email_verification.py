@@ -1,18 +1,19 @@
+import os
 import time
+import json
 import logging
+import re
 import imaplib
 import email
-import re
+from email.header import decode_header
 import random
 from urllib.parse import urlparse, parse_qs
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
+import undetected_chromedriver as uc
+from temp_mail import TempMail
 
 # Configure logging
 logging.basicConfig(
@@ -27,49 +28,72 @@ logging.basicConfig(
 class EmailVerifier:
     """A class to handle email verification for Pinterest accounts"""
     
-    def __init__(self, headless=True):
+    def __init__(self, headless=True, use_existing_driver=False, driver=None):
         """Initialize the email verifier
         
         Args:
             headless (bool): Whether to run the browser in headless mode
+            use_existing_driver (bool): Whether to use an existing WebDriver instance
+            driver: An existing WebDriver instance
         """
         self.headless = headless
-        self.driver = None
+        self.driver = driver if use_existing_driver else None
         self.wait = None
+        self.temp_mail = None
+        self._use_existing_driver = use_existing_driver
+        
+        # Only setup a new driver if we're not using an existing one
+        if not use_existing_driver:
+            self.setup_driver()
+        else:
+            # If using existing driver, just setup the wait
+            if self.driver:
+                self.wait = WebDriverWait(self.driver, 15)
         
     def setup_driver(self):
-        """Set up the Chrome WebDriver with appropriate options"""
-        chrome_options = Options()
-        
-        if self.headless:
-            chrome_options.add_argument("--headless")
-        
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--window-size=1366,768")
-        
-        # Add user agent to appear more like a real user
-        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
-        chrome_options.add_argument(f"--user-agent={user_agent}")
-        
+        """Set up undetected Selenium WebDriver"""
         try:
-            service = Service(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=chrome_options)
-            self.wait = WebDriverWait(self.driver, 15)  # 15 seconds timeout
-            logging.info("WebDriver initialized successfully")
+            # Configure Chrome options
+            options = uc.ChromeOptions()
+            
+            # Add headless option if specified
+            if self.headless:
+                options.add_argument("--headless=new")
+            
+            # Add standard options for performance and stability
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-notifications")
+            
+            # Initialize undetected_chromedriver
+            self.driver = uc.Chrome(
+                options=options,
+                headless=self.headless,
+                use_subprocess=True,
+            )
+            
+            # Set window size
+            self.driver.set_window_size(1366, 768)
+            
+            # Set up WebDriverWait
+            self.wait = WebDriverWait(self.driver, 15)
+            
+            logging.info("WebDriver initialized successfully for email verification")
         except Exception as e:
-            logging.error(f"Failed to initialize WebDriver: {str(e)}")
+            logging.error(f"Failed to initialize WebDriver for email verification: {str(e)}")
             raise
     
     def close(self):
         """Close the WebDriver"""
-        if self.driver:
+        # Only close the driver if we created it (not if it was passed to us)
+        if self.driver and not self._use_existing_driver:
             self.driver.quit()
             logging.info("WebDriver closed")
+    
+        # Close temp mail session if it exists
+        if self.temp_mail:
+            self.temp_mail.close()
+            self.temp_mail = None
     
     def wait_for_element(self, by, value, timeout=15):
         """Wait for an element to be present and visible
@@ -90,6 +114,111 @@ class EmailVerifier:
         except TimeoutException:
             logging.warning(f"Timeout waiting for element: {by}={value}")
             return None
+
+    def generate_temp_mail(self, min_len=10, max_len=10):
+        """Generate a temporary email address"""
+        try:
+            self.temp_mail = TempMail(min_len=min_len, max_len=max_len)
+            self.email = self.temp_mail.create_email()
+            logging.info(f"Generated temporary email: {self.email}")
+            return self.email
+        except Exception as e:
+            logging.error(f"Failed to generate temporary email: {str(e)}")
+            raise
+    
+    def verify_with_temp_mail(self, timeout=300, check_interval=60, verbose=True):
+        """Verify Pinterest account using temporary email
+        
+        Args:
+            timeout (int): Maximum time to wait for verification email in seconds
+            check_interval (int): Time between email checks in seconds
+            verbose (bool): Whether to print verbose output
+            
+        Returns:
+            bool: True if verification was successful, False otherwise
+        """
+        try:
+            if not self.temp_mail:
+                logging.error("Temporary email not generated. Call generate_temp_mail first.")
+                return False
+                
+            logging.info(f"Waiting for Pinterest verification email...")
+            
+            # Wait for verification email from Pinterest
+            message = self.temp_mail.wait_for_message(
+                subject_keyword="Please confirm your email",
+                timeout=timeout,
+                check_interval=check_interval,
+                verbose=verbose
+            )
+            
+            if not message:
+                logging.error("No verification email received")
+                return False
+                
+            logging.info("Verification email received, extracting verification link")
+            
+            # Extract verification link from the message
+            verification_link = None
+            
+            # Check if we got a message in the expected format
+            if isinstance(message, dict) and 'body_text' in message:
+                # Extract URLs from the body text
+                body_text = message['body_text']
+                urls = self.temp_mail.extract_links(message)
+                
+                # Find the verification URL
+                for url in urls:
+                    if 'pinterest.com' in url and '/verify' in url:
+                        verification_link = url
+                        break
+                        
+                # If we didn't find a direct verification URL, look for the autologin URL
+                if not verification_link:
+                    for url in urls:
+                        if 'pinterest.com' in url and '/autologin/' in url and 'next=' in url and 'verify' in url:
+                            verification_link = url
+                            break
+                
+                # If still no verification link, try more targeted approaches
+                if not verification_link:
+                    # Look for target parameters with encoded autologin URLs
+                    targets = re.findall(r'target=(https?%3A%2F%2F[^&\s]+)', body_text)
+                    
+                    for target in targets:
+                        try:
+                            import urllib.parse
+                            decoded = urllib.parse.unquote(target)
+                            # Check if this contains the verification info
+                            if 'autologin' in decoded and 'next=' in decoded and 'verify' in decoded:
+                                verification_link = decoded
+                                break
+                        except:
+                            pass
+                    
+                    # If still not found, try direct search for patterns
+                    if not verification_link:
+                        verify_codes = re.findall(r'code=([a-f0-9]{32})', body_text)
+                        if verify_codes:
+                            verify_code = verify_codes[0]
+                            uid_matches = re.findall(r'uid=(\d+)', body_text)
+                            if uid_matches:
+                                uid = uid_matches[0]
+                                # Construct the verification URL
+                                verification_link = f"https://www.pinterest.com/verify?code={verify_code}&uid={uid}"
+            
+            if not verification_link:
+                logging.error("No verification link found in email")
+                return False
+                
+            logging.info(f"Found verification link: {verification_link}")
+            
+            # Use verification link
+            return self.open_verification_link(verification_link)
+            
+        except Exception as e:
+            logging.error(f"Error in temp mail verification: {str(e)}")
+            return False
     
     def verify_gmail_account(self, email, password, max_attempts=5, delay=60):
         """Verify Pinterest account using Gmail
@@ -329,129 +458,132 @@ class EmailVerifier:
             return False
     
     def open_verification_link(self, verification_link):
-        """Open the verification link in a browser and confirm verification
+        """Open the verification link in the browser
         
         Args:
-            verification_link (str): The verification link from the email
+            verification_link (str): The verification link to open
             
         Returns:
             bool: True if verification was successful, False otherwise
         """
         try:
-            # Set up driver if not already set up
             if not self.driver:
                 self.setup_driver()
             
-            # Open the verification link
-            logging.info("Opening verification link in browser")
+            logging.info(f"Opening verification link: {verification_link}")
             self.driver.get(verification_link)
-            time.sleep(5)  # Wait for page to load
+            
+            # Wait for the page to load
+            time.sleep(5)
             
             # Check if verification was successful
-            success_indicators = [
-                "email verified",
-                "verification successful",
-                "account confirmed",
-                "pinterest.com/homefeed"
-            ]
-            
-            page_source = self.driver.page_source.lower()
             current_url = self.driver.current_url
             
+            # Check for success indicators in URL or page content
+            success_indicators = [
+                "pinterest.com/homefeed",
+                "pinterest.com/settings",
+                "pinterest.com/following",
+                "pinterest.com/"
+            ]
+            
             for indicator in success_indicators:
-                if indicator in page_source or indicator in current_url.lower():
-                    logging.info("Email verification successful")
+                if indicator in current_url:
+                    logging.info(f"Verification successful, redirected to: {current_url}")
                     return True
             
-            # Check if there's a button to complete verification
+            # Check for success message on the page
             try:
-                buttons = self.driver.find_elements(By.TAG_NAME, "button")
-                for button in buttons:
-                    button_text = button.text.lower()
-                    if "confirm" in button_text or "verify" in button_text or "continue" in button_text:
-                        logging.info(f"Clicking button: {button.text}")
-                        button.click()
-                        time.sleep(3)
-                        
-                        # Check again for success indicators
-                        page_source = self.driver.page_source.lower()
-                        current_url = self.driver.current_url
-                        
-                        for indicator in success_indicators:
-                            if indicator in page_source or indicator in current_url.lower():
-                                logging.info("Email verification successful after clicking button")
-                                return True
-            except Exception as e:
-                logging.warning(f"Error clicking verification button: {str(e)}")
+                success_element = self.wait_for_element(By.XPATH, "//*[contains(text(), 'verified') or contains(text(), 'confirmed') or contains(text(), 'success')]", timeout=5)
+                if success_element:
+                    logging.info("Verification success message found on page")
+                    return True
+            except:
+                pass
             
-            logging.warning("Could not confirm if verification was successful")
+            logging.warning(f"Could not confirm successful verification. Current URL: {current_url}")
             return False
             
         except Exception as e:
             logging.error(f"Error opening verification link: {str(e)}")
             return False
     
-    def verify_email(self, email, password, email_provider=None):
-        """Verify Pinterest account email based on email provider
+    def verify_email(self, email, password=None, email_provider=None):
+        """Verify a Pinterest account email
         
         Args:
             email (str): Email address
-            password (str): Email password
-            email_provider (str, optional): Email provider (gmail, yahoo, outlook)
-                If None, will be detected from email address
-                
+            password (str, optional): Email password (not needed for temp mail)
+            email_provider (str, optional): Email provider ('gmail', 'yahoo', 'outlook', 'temp_mail')
+                If not provided, will try to determine from email domain
+            
         Returns:
             bool: True if verification was successful, False otherwise
         """
-        try:
-            # Detect email provider if not specified
-            if not email_provider:
-                if "gmail" in email:
-                    email_provider = "gmail"
-                elif "yahoo" in email:
-                    email_provider = "yahoo"
-                elif "hotmail" in email or "outlook" in email or "live" in email:
-                    email_provider = "outlook"
-                else:
-                    logging.error(f"Unsupported email provider for {email}")
-                    return False
+        if not email_provider:
+            # Determine email provider from domain
+            domain = email.split('@')[-1].lower()
             
-            # Verify based on email provider
-            if email_provider == "gmail":
-                return self.verify_gmail_account(email, password)
-            elif email_provider == "yahoo":
-                return self.verify_yahoo_account(email, password)
-            elif email_provider == "outlook":
-                return self.verify_outlook_account(email, password)
+            if domain == 'gmail.com':
+                email_provider = 'gmail'
+            elif domain in ['yahoo.com', 'ymail.com']:
+                email_provider = 'yahoo'
+            elif domain in ['outlook.com', 'hotmail.com', 'live.com']:
+                email_provider = 'outlook'
+            elif 'temp-mail.io' in domain:
+                email_provider = 'temp_mail'
             else:
-                logging.error(f"Unsupported email provider: {email_provider}")
+                logging.warning(f"Unknown email provider for domain {domain}, will attempt to use temp_mail")
+                email_provider = 'temp_mail'
+        
+        logging.info(f"Verifying email {email} using {email_provider}")
+        
+        # Verify based on email provider
+        if email_provider == 'gmail':
+            if not password:
+                logging.error("Password required for Gmail verification")
                 return False
-                
-        except Exception as e:
-            logging.error(f"Error verifying email: {str(e)}")
+            return self.verify_gmail_account(email, password)
+            
+        elif email_provider == 'yahoo':
+            if not password:
+                logging.error("Password required for Yahoo verification")
+                return False
+            return self.verify_yahoo_account(email, password)
+            
+        elif email_provider == 'outlook':
+            if not password:
+                logging.error("Password required for Outlook verification")
+                return False
+            return self.verify_outlook_account(email, password)
+            
+        elif email_provider == 'temp_mail':
+            return self.verify_with_temp_mail()
+            
+        else:
+            logging.error(f"Unsupported email provider: {email_provider}")
             return False
-        finally:
-            # Always close the driver
-            self.close()
 
-# Example usage
 def main():
     """Main function to demonstrate usage"""
     try:
-        # Create an instance of EmailVerifier
-        verifier = EmailVerifier(headless=False)  # Set to True for headless mode
+        verifier = EmailVerifier(headless=False)
         
-        # Example email and password (replace with actual credentials)
-        email = "example@gmail.com"
-        password = "your_password"
+        # Generate a temporary email
+        email = verifier.generate_temp_mail()
+        print(f"Generated email: {email}")
         
-        # Verify email
-        success = verifier.verify_email(email, password)
+        # You would typically use this email during account creation,
+        # then call verify_with_temp_mail afterward.
+        # This is a simulation:
+        success = verifier.verify_with_temp_mail(timeout=180)
         
         if success:
             print("Email verification successful!")
         else:
-            print("Email verification failed.")
+            print("Email verification failed!")
+        
+        verifier.close()
         
     except Exception as e:
         logging.error(f"Error in main function: {str(e)}")

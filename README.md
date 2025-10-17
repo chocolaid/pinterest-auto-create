@@ -1,196 +1,125 @@
-# Pinterest Account Creator Automation
+# Pinterest Auto Account Creator
 
-A comprehensive Python-based solution for automating Pinterest account creation with advanced features including proxy support, CAPTCHA solving, and email verification.
+A tool to automate Pinterest account creation with temporary email verification.
 
 ## Features
 
-- Automated Pinterest account creation
-- Random user information generation with customizable data
-- Proxy support for avoiding IP restrictions
-- CAPTCHA solving capabilities (manual and API-based)
-- Email verification for created accounts
-- Headless mode option for running without a visible browser
-- Detailed logging and statistics
-- Error handling and retry mechanisms
+- Create Pinterest accounts automatically
+- Use temporary email for verification
+- Support for proxies
+- Batch account creation
+- Configurable delays and retries
+- Account information saved to JSON file
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - Chrome browser installed
-- Internet connection
+- Required Python packages (see requirements.txt)
 
 ## Installation
 
-1. Clone or download this repository
-2. Create a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate  # On Windows
-   source venv/bin/activate  # On Linux/Mac
-   ```
-3. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Clone this repository
+2. Install required packages:
 
-## Configuration
-
-The application uses a JSON configuration file (`config.json`) to control its behavior. You can modify this file directly or use command-line arguments to override settings.
-
-### Sample Configuration
-
-```json
-{
-    "account_creation": {
-        "num_accounts": 5,
-        "headless": false,
-        "verify_success": true,
-        "max_retries": 3,
-        "min_delay": 30,
-        "max_delay": 120
-    },
-    "proxy": {
-        "use_proxy": true,
-        "proxy_file": "proxies.txt",
-        "proxy_list": [],
-        "proxy_api_url": null,
-        "proxy_api_key": null
-    },
-    "user_data": {
-        "use_custom_data": true,
-        "data_file": "user_data.json",
-        "email_verification": false,
-        "email_passwords": {
-            "gmail.com": "your_gmail_password",
-            "yahoo.com": "your_yahoo_password",
-            "outlook.com": "your_outlook_password"
-        }
-    },
-    "captcha": {
-        "use_solver": false,
-        "service": "2captcha",
-        "api_key": null
-    },
-    "output": {
-        "output_file": "pinterest_accounts.json",
-        "log_level": "INFO"
-    }
-}
-```
-
-### Proxy Configuration
-
-The application supports using proxies to avoid IP restrictions. You can provide proxies in a text file (one proxy per line) in the following formats:
-
-```
-http://ip:port
-http://username:password@ip:port
-https://ip:port
-socks5://ip:port
+```bash
+pip install -r requirements.txt
 ```
 
 ## Usage
 
 ### Basic Usage
 
-To create Pinterest accounts with default settings:
+To create a single Pinterest account with temporary email verification:
 
 ```bash
-python pinterest_automation.py
+python test_account_creation.py
 ```
 
-### Command-line Arguments
+### Batch Account Creation
 
-You can override configuration settings using command-line arguments:
+To create multiple accounts:
 
 ```bash
-python pinterest_automation.py --num-accounts 10 --headless --use-proxy --proxy-file proxies.txt
+python test_account_creation.py --num-accounts 5
 ```
 
-Available arguments:
+### Using Proxies
 
-- `-c, --config`: Path to configuration file (default: config.json)
-- `-n, --num-accounts`: Number of accounts to create
-- `--headless`: Run in headless mode (no browser UI)
-- `--use-proxy`: Use proxies for account creation
-- `--proxy-file`: Path to file containing proxies
-- `--use-custom-data`: Use custom user data for account creation
-- `--data-file`: Path to file containing custom user data
-- `--verify-email`: Enable email verification
-- `--use-captcha-solver`: Use CAPTCHA solving service
-- `--captcha-api-key`: API key for CAPTCHA solving service
-- `--captcha-service`: CAPTCHA solving service to use (2captcha or anticaptcha)
-- `--output-file`: Path to output file for created accounts
-- `--log-level`: Logging level (DEBUG, INFO, WARNING, ERROR)
-
-### Legacy Usage
-
-You can still use the original script for simple account creation:
+To use proxies for account creation:
 
 ```bash
-python pinterest_account_creator.py
+python test_account_creation.py --use-proxy --proxy-file proxies.txt
 ```
 
-Custom user information can be provided:
+### Running in Headless Mode
 
-```python
-user_info = {
-    "first_name": "John",
-    "last_name": "Doe",
-    "username": "johndoe123",
-    "email": "johndoe123@example.com",
-    "password": "SecurePassword123!",
-    "age": 30,
-    "gender": "male"
-}
+To run browsers in headless mode (no visible browser windows):
 
-success, result = creator.create_account(user_info=user_info)
+```bash
+python test_account_creation.py --headless
 ```
 
-## Components
+### Full Options
 
-### Main Modules
+```
+usage: test_account_creation.py [-h] [--headless] [--use-proxy] [--proxy-file PROXY_FILE]
+                              [--num-accounts NUM_ACCOUNTS] [--output-file OUTPUT_FILE]
+                              [--min-delay MIN_DELAY] [--max-delay MAX_DELAY]
+                              [--max-retries MAX_RETRIES] [--verify-timeout VERIFY_TIMEOUT]
 
-- `pinterest_automation.py`: Main entry point for the automation
-- `pinterest_account_creator.py`: Core functionality for creating Pinterest accounts
-- `batch_account_creator.py`: Handles batch creation of multiple accounts
-- `email_verification.py`: Handles email verification for created accounts
-- `captcha_solver.py`: Provides CAPTCHA solving capabilities
+Test Pinterest account creation with temporary mail verification
 
-### Helper Classes
+options:
+  -h, --help            show this help message and exit
+  --headless            Run browser in headless mode
+  --use-proxy           Use proxy for account creation
+  --proxy-file PROXY_FILE
+                        File containing list of proxies
+  --num-accounts NUM_ACCOUNTS
+                        Number of accounts to create
+  --output-file OUTPUT_FILE
+                        Output file for created accounts
+  --min-delay MIN_DELAY
+                        Minimum delay between account creations (seconds)
+  --max-delay MAX_DELAY
+                        Maximum delay between account creations (seconds)
+  --max-retries MAX_RETRIES
+                        Maximum number of retries per account
+  --verify-timeout VERIFY_TIMEOUT
+                        Timeout for email verification (seconds)
+```
 
-- `UserGenerator`: Generates random user information
-- `ProxyHandler`: Manages proxy rotation
-- `EmailVerifier`: Verifies email addresses
-- `CaptchaSolver`: Solves CAPTCHAs using various methods
+## Proxy Format
+
+Proxies in the proxy file should be in one of these formats:
+
+```
+http://ip:port
+http://username:password@ip:port
+ip:port
+```
 
 ## Output
 
-Created accounts are saved in both JSON and text formats:
+Account information is saved to `accounts.json` by default. The file contains an array of account objects with the following fields:
 
-- `pinterest_accounts.json`: Contains detailed account information in JSON format
-- `pinterest_accounts.txt`: Human-readable text file with account details
+- email
+- password
+- username
+- first_name
+- last_name
+- age
+- gender
+- created_at
+- proxy (if used)
 
 ## Troubleshooting
 
-### Common Issues
-
-1. **Selenium WebDriver errors**: Make sure you have the latest version of Chrome installed and that the webdriver-manager package is up to date.
-
-2. **Proxy errors**: Verify that your proxies are working and properly formatted.
-
-3. **CAPTCHA solving failures**: If using a CAPTCHA solving service, check that your API key is valid and has sufficient balance.
-
-4. **Email verification failures**: Ensure that the email provider allows IMAP access and that the credentials are correct.
-
-### Logs
-
-Detailed logs are saved to `pinterest_automation.log`. Check this file for error messages and debugging information.
-
-## Legal Disclaimer
-
-This tool is provided for educational purposes only. Using this tool to create multiple Pinterest accounts may violate Pinterest's Terms of Service. Use at your own risk.
+- Check the logs in the `logs` directory for detailed information.
+- If you encounter issues with Chrome driver, try reinstalling Chrome to the latest version.
+- Make sure your internet connection and proxies (if used) are working properly.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is for educational purposes only.
